@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import {
   Table,
   Thead,
@@ -7,46 +8,37 @@ import {
   Td,
   TableCaption,
   TableContainer,
+  Button,
 } from "@chakra-ui/react";
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@chakra-ui/react";
-import { useQuery } from "react-query";
-import { getCategories } from "../Services/CategoryService";
-import {PostCategory} from "../Pages/PostCategory"
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Mutation, useMutation, useQuery, useQueryClient } from "react-query";
+import { deleteCategory, getCategories } from "../Services/CategoryService";
 export function Home() {
   const [Color, SetColor] = useState("white");
-  
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const HandleBackgroundColor = () => SetColor("red");
-  const HandleGoToCrud = () => navigate("/Crud");
+  const HandleGoToCrud = () => navigate("/PostCategory");
 
-
-  const onSuccess = (data) =>{
-    console.log("perform side effect after data fetching",data)
-  }
-  const onError = (error) =>{
-    console.log("perform side effect after encounting error",error)
-  }
-
-  const { isLoading, error, data } = useQuery(
-    {
-      queryKey: ["Categoryies"],
-      queryFn: getCategories,
-      staleTime: 0,
-      onError,
-      onSuccess,
+  const { data } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+    staleTime: 0,
+  });
+  const QueryClient = useQueryClient();
+  const deleteMutation = useMutation(deleteCategory,{
+    onSuccess: ()=>{
+      queryClient.invalidateQueries("categories")
     },
-  );
+    onError: (error)=>{
+      console.log("this is error",error)
+    }
+  })
+  const handleDelete = (categoryId)=>{
+    deleteMutation.mutate(categoryId)
+  }
   
-
-  if (isLoading) return <h2>Loading...</h2>;
-
-  if (error) return <h2>Error: {error.message}</h2>;
-
-  if (error) return "An error has occured: " + error.message;
   return (
     <div style={{ backgroundColor: Color }}>
       <TableContainer>
@@ -57,14 +49,33 @@ export function Home() {
               <Th>Category Name</Th>
               <Th>Desc</Th>
               <Th>Guid Id</Th>
+              <Th>delete</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {data.data?.map((Category) => (
+            {data?.data.map((Category) => (
               <Tr key={Category.guid}>
                 <Td>{Category.name}</Td>
                 <Td>{Category.description}</Td>
                 <Td>{Category.id}</Td>
+                <Td>
+                  <Button
+                    onClick={() => handleDelete(Category.id)}
+                    color={"white"}
+                    backgroundColor={"red"}
+                  >
+                    Delete
+                  </Button>
+                  <Link to={`/Update/${Category.id}`}>
+                    <Button
+                      value={Category.id}
+                      color={"white"}
+                      backgroundColor={"yellow"}
+                    >
+                      Update
+                    </Button>
+                  </Link>
+                </Td>
               </Tr>
             ))}
           </Tbody>
@@ -72,10 +83,10 @@ export function Home() {
       </TableContainer>
       <br />
       <Button onClick={HandleGoToCrud} m="10" colorScheme="whatsapp">
-        Go to Crud
+        Go to add
       </Button>
       <Button onClick={HandleBackgroundColor} m="10" colorScheme="red">
-        change Color
+        Change Color
       </Button>
     </div>
   );

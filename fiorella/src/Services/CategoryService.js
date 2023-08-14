@@ -5,3 +5,10 @@ export const getCategories = () =>{
 export const PostCategories = (data) =>{
   return httpClient.post("/api/Catagories",data)
 };
+export const deleteCategory = (id) =>{
+  return httpClient.delete(`/api/Catagories/${id}`)
+};
+export const UpdateCategory = (id,data) =>{
+  return httpClient.put(`/api/Categories/${id}`,data)
+};
+

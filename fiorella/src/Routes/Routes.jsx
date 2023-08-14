@@ -1,7 +1,10 @@
-import Crud from "../Pages/Crud";
 import { Home } from "../Pages/Home";
 import {MainLayout} from "../Layouts/MainLayout"
 import { useRoutes } from "react-router-dom";
+import {PostCategory} from "../Pages/PostCategory";
+import Delete from "../Pages/Delete";
+import Update from "../Pages/update";
+import { UpdateCategory } from "../Services/CategoryService";
 export default function Routes() {
     let routes = [
         {
@@ -13,9 +16,18 @@ export default function Routes() {
                 element: <Home />
             },
             {
-                path:"/Crud",
-                element:<Crud />
-            }
+                path:"/PostCategory",
+                element:<PostCategory />
+            },
+            {
+                path:"/Delete/:id",
+                element:<Delete />
+            },
+            {
+                path:"/Update/:id",
+                element:<UpdateCategory />
+            },
+            
         ],
     }
 ];
